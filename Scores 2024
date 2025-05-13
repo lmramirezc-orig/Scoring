@@ -1,3 +1,4 @@
+CREATE OR REPLACE TABLE crp-pro-dwh-semanticagold.MUS_PRO_DWH_SAS_TEMP.SBB_TTD_SCORING AS (
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 --                                                    01. EXTRACIONES
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -108,7 +109,8 @@ VFAC_BR_TL AS (
               WHEN BR_NOM_OTORG='PRUEBAS BC' THEN 'ZT'
   END AS KOB
   FROM crp-pro-dwh-semanticagold.EIL_DP_VDWH.VFAC_BR_TL
-  WHERE BR_FCH_ACT IS NOT NULL
+  WHERE BR_ORG IN (200,210,230) 
+  AND BR_FCH_ACT IS NOT NULL
 ),
 
 VFAC_BR_IQ AS (
@@ -122,7 +124,8 @@ VFAC_BR_IQ AS (
 				,BR_CVE_OTORG
         ,DATE(((SELECT PARSE_DATE("%Y%j", SUBSTR(CAST(BR_SOLIC_CVE AS STRING),1,7))))) AS DT_FCH_SOL
   FROM crp-pro-dwh-semanticagold.EIL_DP_VDWH.VFAC_BR_IQ
-  WHERE BR_FCH_CONS IS NOT NULL
+  WHERE BR_ORG IN (200,210,230) 
+  AND BR_FCH_CONS IS NOT NULL
 ),
 
 SOLICITUDES AS (
@@ -1565,3 +1568,4 @@ CUTOFF AS (
 
 SELECT *
 FROM CUTOFF
+)
