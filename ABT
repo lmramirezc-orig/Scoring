@@ -1,0 +1,947 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------
+--                                                    01. EXTRACIONES
+------------------------------------------------------------------------------------------------------------------------------------------------------
+WITH
+VFAC_BR_TL AS (
+  SELECT BR_SOLIC_CVE
+        ,BR_TIPO
+        ,CTA_CVE
+        ,BR_ORG
+        ,BR_FCH_CREC_HST_PAG
+        ,BR_TIP_RESPON
+        ,BR_CRD_MAX
+        ,BR_CVE_OBS
+        ,BR_FCH_CIERRE
+        ,BR_FCH_AP
+        ,BR_HST_PG
+        ,BR_LIM_CRD
+        ,BR_MOP
+        ,BR_FCH_ACT
+        ,BR_NOM_OTORG
+        ,BR_SDO
+        ,BR_CVE_OTORG
+        ,BR_TIPO_BURO_CVE
+        ,BR_TIP_CONT
+        ,BR_TIP_CTA
+        ,BR_IMP_PAG
+        ,BR_NUM_PAG_VNC
+        ,BR_MOP_MOR_GVE
+        ,BR_FCH_MOR_GVE
+        ,BR_FCH_REPO
+        ,BR_SDO_VNC
+        ,BR_MONEDA
+        ,BR_SDO_MOR
+        ,BR_TOT_PAG_MOP02
+        ,BR_TOT_PAG_MOP03
+        ,BR_TOT_PAG_MOP04
+        ,BR_TOT_PAG_MOP05
+        ,DATE(((SELECT PARSE_DATE("%Y%j", SUBSTR(CAST(BR_SOLIC_CVE AS STRING),1,7))))) AS DT_FCH_SOL
+        ,CASE WHEN LENGTH(TRIM(BR_CVE_OTORG))>0 THEN SUBSTR(BR_CVE_OTORG,1,2)
+              WHEN BR_NOM_OTORG='AUTOMOTRIZ' THEN 'AA'
+              WHEN BR_NOM_OTORG='SICREA' THEN 'AF'
+              WHEN BR_NOM_OTORG='AGROPECUARIO' THEN 'AG' 
+              WHEN BR_NOM_OTORG='OTROS VEHICULOS' THEN 'AM' 
+              WHEN BR_NOM_OTORG='BANCO AUTOFIN' THEN 'BA' 
+              WHEN BR_NOM_OTORG IN ('BANCO','BANCOS','BANAMEX','BANAMEX LINEA 02'
+                                  ,'BANAMEX SOFOM TC','BANAMEX TC-L-006'
+                                  ,'BANAMEXVENTACART','BANCA AFIRME','BANCO FAMSA'
+                                  ,'BANCO HSBC','BANCO MULTIVA','BANCO WALMART'
+                                  ,'BANCOPPEL','BANJERCITOSNC','BANORTE'
+                                  ,'BANORTE BANPAIS','BANREGIO','BBVABANCOMER'
+                                  ,'BCO COMPARTAMOS','BNP PARIBAS','COPPEL'
+                                  ,'HSBC MEXICO','MIFEL','SANTANDER'
+                                  ,'SANTANDERCONSUMO','SCOTIABANK') THEN 'BB'
+              WHEN BR_NOM_OTORG='FIANZAS' THEN 'BD'
+              WHEN BR_NOM_OTORG='CRED BANCO PFAE' THEN 'BE'
+              WHEN BR_NOM_OTORG IN ('CRED FINAN PFAE', 'PROCESADOR') THEN 'BP' 
+              WHEN BR_NOM_OTORG IN ('BODESA','C&A','CIMACO','COMERCIAL','FAMSA DF'
+                                  ,'FAMSA MEXICO','FAMSATAM','JOYERIASBIZZARRO'
+                                  ,'PALACIO','ROYAL PRESTIGE','SORIANA PRIVADA'
+                                  ,'TIENDA DE ROPA','TOKA INVESTMENT') THEN 'CC'
+              WHEN BR_NOM_OTORG IN ('AMEXTRA', 'CREDITO PFAE') THEN 'CE'
+              WHEN BR_NOM_OTORG IN ('CASA DE EMPEÑO','SANBORNS','SEARS ROEBUCK','TIENDA COMERCIAL') THEN 'DS'      
+              WHEN BR_NOM_OTORG IN ('EDUCACION', 'ITESM') THEN 'ED' 
+              WHEN BR_NOM_OTORG IN ('AFIRMECREDITO','ALSOL CONTIGO','APOYOECONOMICO'
+                                  ,'C SAN JUAN BOSCO','CAJA BIENESTAR'
+                                  ,'CAJA CRISTO REY','CAJA REAL POTOSI'
+                                  ,'CAJA SAN RAFAEL','CAJAS DE AHORRO','CAPOME'
+                                  ,'COM COMERNOVA','CONFIANZADIGITAL','CP15DEMAYO'
+                                  ,'CPFRAYJUANCALERO','CPROSARIO','CRED FAMILIAR SB'
+                                  ,'CREDIAMIGO','CREDICLUB','CREDIJAL','CREDIPRESTO'
+                                  ,'CREDITO REAL','EQUIPAT','FESOLIDARIDAD'
+                                  ,'FID EMPRES 3443','FIN AYUDAMOS','FIN INDEPEND'
+                                  ,'FINANCIERA','FINCOMUN','FINSOL','FINVIVIR'
+                                  ,'FISOFO','GLOBALCARD','GM FINANCIAL'
+                                  ,'IMPULSORA ALICA','INSTITUTOFONACOT'
+                                  ,'INTERMERCADO','KAPITALMUJER','KAPTAL','KEKIPO'
+                                  ,'KREDITECH','KUBO FINANCIERO','LIBERTAD SFP'
+                                  ,'MERCADOS MEDIOS','NR F MEXICO','OTRAS FINANCIERA'
+                                  ,'PRESTA SIMPLE','REFACIL SA DE CV','RSFINANCIEROS'
+                                  ,'SOFOM INBURSA','SUMATE','SUPPLYCREDIT','VIVAFIN','VIVUS') THEN 'FF'
+              WHEN BR_NOM_OTORG='FACTORAJE' THEN 'FT'
+              WHEN BR_NOM_OTORG='HIPOTECAGOBIERNO' THEN 'HG'   
+              WHEN BR_NOM_OTORG IN ('ABACO', 'SEGURO', 'SEGUROS') THEN 'II'    
+              WHEN BR_NOM_OTORG='SERVS. GRALES.' THEN 'KK'
+              WHEN BR_NOM_OTORG='INSUMOS' THEN 'LL'
+              WHEN BR_NOM_OTORG IN ('ARRENDADORA', 'ARRENDAMIENTO') THEN 'LS'
+              WHEN BR_NOM_OTORG IN ('COOPDESARROLLO', 'COOPERATIVA') THEN 'MC'
+              WHEN BR_NOM_OTORG IN ('METROFINANCIERA', 'MICROFINANCIERA') THEN 'MI'
+              WHEN BR_NOM_OTORG='SERVICIO MEDICO' THEN 'MM'
+              WHEN BR_NOM_OTORG IN ('MIC CREDITO PERS', 'REFACIL SA DE CV') THEN 'MS'
+              WHEN BR_NOM_OTORG IN ("CIA Q' OTORGA","CIA Q  OTORGA") THEN 'NN' 
+              WHEN BR_NOM_OTORG IN ('ASEA', 'COMP PETROLERA') THEN 'OO' 
+              WHEN BR_NOM_OTORG='EDITORIAL' THEN 'PB'
+              WHEN BR_NOM_OTORG='HIPOTECARIA' THEN 'QM'
+              WHEN BR_NOM_OTORG='UNION DE CREDITO' THEN 'QU' 
+              WHEN BR_NOM_OTORG='BIENES RAICES' THEN 'RR' 
+              WHEN BR_NOM_OTORG='SERV FIDUCIARIOS' THEN 'SE' 
+              WHEN BR_NOM_OTORG IN ('CIRCULO CREDITO', 'SIC') THEN 'SI' 
+              WHEN BR_NOM_OTORG IN ('FONDOS Y FIDEIC','FONDO CREACION','FONDOS Y FIDEICO') THEN 'TF' 
+              WHEN BR_NOM_OTORG IN ('AXTEL','COMCEL','COMUNICACIONES','IPF DIGITAL MEX'
+                                  ,'IUSACELL','NEXTEL','PEGASO','TELCEL GDJ'
+                                  ,'TELCEL HER','TELCEL MER','TELCEL MTY','TELCEL PUE'
+                                  ,'TELCEL QUE','TELCELMETRO','TELMEX') THEN 'UT'
+              WHEN BR_NOM_OTORG IN ('ABC SERVICIOS','CABLEVISION DF','DISH','SKY TV','SERVICIOS','SERV RURALES') THEN 'UU'
+              WHEN BR_NOM_OTORG IN ('AMEX BANK','AMEX COMPANY','GDM3 CAPITA','GOBIERNO','GUBERNAMENTALES','INSTITUTOFONACOT','SOFOM INBURSA')	THEN 'VV' 
+              WHEN BR_NOM_OTORG IN ('COBRANZA', 'COORDINADORA REC') THEN 'YY'
+              WHEN BR_NOM_OTORG='PRUEBA OTORGANTE' THEN 'ZM'
+              WHEN BR_NOM_OTORG='PRUEBAS BC' THEN 'ZT'
+  END AS KOB
+  FROM crp-pro-dwh-semanticagold.EIL_DP_VDWH.VFAC_BR_TL
+  WHERE BR_ORG = 200
+  AND FCH_CARGA >= '2025-09-11'
+  AND BR_FCH_ACT IS NOT NULL
+),
+
+VFAC_BR_IQ AS (
+  SELECT BR_SOLIC_CVE
+				,BR_TIPO
+				,BR_ORG
+				,BR_FCH_CONS
+				,BR_NOM_OTORG
+				,BR_TIPO_BURO_CVE
+				,BR_TIP_CONT
+				,BR_CVE_OTORG
+        ,DATE(((SELECT PARSE_DATE("%Y%j", SUBSTR(CAST(BR_SOLIC_CVE AS STRING),1,7))))) AS DT_FCH_SOL
+  FROM crp-pro-dwh-semanticagold.EIL_DP_VDWH.VFAC_BR_IQ
+  WHERE BR_ORG = 200
+  AND FCH_CARGA >= '2025-09-11'
+  AND BR_FCH_CONS IS NOT NULL
+),
+
+SOLICITUDES AS (
+  SELECT a.BR_SOLIC_CVE
+				,a.BR_TIPO
+				,a.BR_ANT_DOM_ANIOS
+				,a.BR_TIP_VDA
+				,a.BR_EDC_CVE
+				,a.BR_NUM_DEP
+				,a.BR_ANT_EMP_MESES
+				,a.BR_ORG
+				,a.BR_TDA_CAP
+				,a.BR_SEXO
+				,a.BR_EDAD
+				,a.BR_ING_TOT
+				,a.BR_FCH_APE
+				,a.BR_ESCOLARIDAD
+				,a.BR_GIRO
+	FROM crp-pro-dwh-semanticagold.EIL_DP_VDWH.VFAC_APIA a
+  WHERE a.BR_FCH_APE >= '2025-09-11'
+  AND a.BR_ORG = 200
+),
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+--                                                    02. AUXILIARES
+------------------------------------------------------------------------------------------------------------------------------------------------------
+VFAC_BR_IQ_AUX AS (
+  SELECT *
+        ,CASE WHEN BR_NOM_OTORG LIKE '%LIV%' AND BR_FCH_CONS >= DT_FCH_SOL THEN 1 ELSE 0 END AS ConsAct
+        ,CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_CONS) THEN DATE_DIFF(DT_FCH_SOL,BR_FCH_CONS,MONTH)-1
+              ELSE DATE_DIFF(DT_FCH_SOL,BR_FCH_CONS,MONTH) END AS MthsInq
+        ,DATE_DIFF(DT_FCH_SOL,BR_FCH_CONS,DAY) AS DaysInq
+  FROM VFAC_BR_IQ
+),
+
+VFAC_BR_TL_AUX1 AS (
+  SELECT *
+        ,DATE_DIFF(DT_FCH_SOL, BR_FCH_CREC_HST_PAG,MONTH) AS MESES_ACT
+        ,DATE_DIFF(DT_FCH_SOL, BR_FCH_CREC_HST_PAG,MONTH) AS MESES_UPDATE_HST_PAG
+        ,CASE WHEN BR_TIP_RESPON='A' THEN 1 ELSE 0 END AS AuthUsrTLFlg
+        ,CASE WHEN BR_TIP_CTA IN ('I', 'M') THEN 1 ELSE 0 END AS InstTL
+        ,CASE WHEN BR_TIP_CTA='R' AND BR_TIP_CONT IN ('CC', 'CL', 'SC', 'TE') AND KOB NOT IN ('UT', 'UU') THEN 1 ELSE 0 END AS RevTL
+        ,CASE WHEN BR_TIP_CONT= 'CC' THEN 1 ELSE 0 END AS FLG_REVOLVENTE
+        ,CASE WHEN (BR_FCH_CIERRE IS NULL OR BR_FCH_CIERRE='1900-01-01') AND BR_CVE_OBS NOT IN ('CC') THEN 0 ELSE 1 END AS CLOSED_FLAG
+        ,CASE WHEN BR_TIP_CONT='FT' OR BR_CVE_OBS IN ('CL','PC') OR KOB IN ('FT','YY') THEN 1 ELSE 0 END AS CollTL
+        ,CASE WHEN (BR_TIP_CONT='FT' OR BR_CVE_OBS IN ('CL','PC') OR KOB IN ('FT','YY')) AND (BR_FCH_AP='1900-01-01' OR BR_FCH_AP IS NULL) THEN 999 
+              WHEN (BR_TIP_CONT='FT' OR BR_CVE_OBS IN ('CL','PC') OR KOB IN ('FT','YY')) AND EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_AP) THEN DATE_DIFF(DT_FCH_SOL,BR_FCH_AP,MONTH)-1
+              WHEN BR_TIP_CONT='FT' OR BR_CVE_OBS IN ('CL','PC') OR KOB IN ('FT','YY') THEN DATE_DIFF(DT_FCH_SOL,BR_FCH_AP,MONTH) 
+              ELSE 1200 END AS MthsColl
+        ,CASE WHEN (BR_FCH_CIERRE IS NULL OR BR_FCH_CIERRE='1900-01-01') THEN -999 
+              WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_CIERRE) THEN DATE_DIFF(DT_FCH_SOL,BR_FCH_CIERRE,MONTH)-1
+              ELSE DATE_DIFF(DT_FCH_SOL,BR_FCH_CIERRE,MONTH) END AS MthsClsd
+        ,CASE WHEN (BR_FCH_MOR_GVE IS NULL OR BR_FCH_MOR_GVE='1900-01-01') THEN -999 
+              WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_MOR_GVE) THEN DATE_DIFF(DT_FCH_SOL,BR_FCH_MOR_GVE,MONTH)-1
+              ELSE DATE_DIFF(DT_FCH_SOL,BR_FCH_MOR_GVE,MONTH) END AS MthsHghDlq
+        ,CASE WHEN (BR_FCH_CREC_HST_PAG IS NULL OR BR_FCH_CREC_HST_PAG='1900-01-01') THEN -999 
+              WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_CREC_HST_PAG) THEN DATE_DIFF(DT_FCH_SOL,BR_FCH_CREC_HST_PAG,MONTH)-1
+              ELSE DATE_DIFF(DT_FCH_SOL,BR_FCH_CREC_HST_PAG,MONTH) END AS MthsMstRcntPyHst
+        ,CASE WHEN (BR_FCH_AP IS NULL OR BR_FCH_AP='1900-01-01') THEN -999 
+              WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_AP) THEN DATE_DIFF(DT_FCH_SOL,BR_FCH_AP,MONTH)-1
+              ELSE DATE_DIFF(DT_FCH_SOL,BR_FCH_AP,MONTH) END AS MthsOpn
+        ,CASE WHEN (BR_FCH_REPO IS NULL OR BR_FCH_REPO='1900-01-01') THEN -999 
+              WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_REPO) THEN DATE_DIFF(DT_FCH_SOL,BR_FCH_REPO,MONTH)-1
+              ELSE DATE_DIFF(DT_FCH_SOL,BR_FCH_REPO,MONTH) END AS MthsRep
+        ,CASE WHEN (BR_FCH_ACT IS NULL OR BR_FCH_ACT='1900-01-01') THEN -999 
+              WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_ACT) THEN DATE_DIFF(DT_FCH_SOL,BR_FCH_ACT,MONTH)-1
+              ELSE DATE_DIFF(DT_FCH_SOL,BR_FCH_ACT,MONTH) END AS MthsAct
+        ,CASE WHEN BR_TIP_CTA='I' AND (BR_TIP_CONT IN ('AL','AU') OR KOB IN ('AA', 'AF', 'BA')) THEN 1 ELSE 0 END AS AutoLoanTL
+        ,CASE WHEN BR_TIP_CTA='O' AND BR_TIP_CONT IN ('CC', 'CL', 'SC', 'TE') AND NOT (KOB IN ('UT', 'UU')) THEN 1 ELSE 0 END AS OpenEnd
+        ,CASE WHEN BR_CVE_OBS IN ('AD', 'CO', 'SG') THEN 1 ELSE 0 END AS Dispute
+        ,CASE WHEN KOB IN ('BA','BB','BC','BH','BM','BY','NN') THEN 1 ELSE 0 END AS bankTL
+        ,CASE WHEN BR_TIP_CTA='M' OR BR_TIP_CONT='RE' OR KOB IN ('BM', 'HG', 'QM', 'RR') THEN 1 ELSE 0 END AS MtgTL
+        ,CASE WHEN BR_TIP_CONT='ST' OR KOB='ED' THEN 1 ELSE 0 END AS StTL
+        ,CASE WHEN KOB= 'UT' THEN 1 ELSE 0 END AS TelCoTL
+        ,CASE WHEN REGEXP_CONTAINS(BR_HST_PG,'[2-9]')
+                OR BR_CVE_OBS IN ('CL','CR','FD','FR','IR','LO','MD','PC','PS','RQ','SP','ST','UP','VR')
+                OR BR_MOP IN ('02','03','04','05','06','07','09','96','97','99')
+                OR BR_MOP_MOR_GVE IN ('02','03','04','05','06','07','09','96','97','99')
+                OR BR_TOT_PAG_MOP02>0
+                OR BR_TOT_PAG_MOP03>0
+                OR BR_TOT_PAG_MOP04>0
+                OR BR_TOT_PAG_MOP05>0
+              THEN 1 ELSE 0 END AS Ever1_29m
+        ,CASE WHEN REGEXP_CONTAINS(BR_HST_PG,'[3-9]')
+                OR BR_CVE_OBS IN ('CL','CR','FD','FR','IR','LO','MD','PC','PS','RQ','SP','ST','UP','VR')
+                OR BR_MOP IN ('03','04','05','06','07','09','96','97','99')
+                OR BR_MOP_MOR_GVE IN ('03','04','05','06','07','09','96','97','99')
+                OR BR_TOT_PAG_MOP03>0
+                OR BR_TOT_PAG_MOP04>0
+                OR BR_TOT_PAG_MOP05>0
+              THEN 1 ELSE 0 END AS Ever30m
+        ,CASE WHEN REGEXP_CONTAINS(BR_HST_PG,'[4-9]')
+                OR BR_CVE_OBS IN ('CL','CR','FD','FR','IR','LO','MD','PC','PS','RQ','SP','ST','UP','VR')
+                OR BR_MOP IN ('04','05','06','07','09','96','97','99')
+                OR BR_MOP_MOR_GVE IN ('04','05','06','07','09','96','97','99')
+                OR BR_TOT_PAG_MOP04>0
+	              OR BR_TOT_PAG_MOP05>0
+              THEN 1 ELSE 0 END AS Ever60m
+        ,CASE WHEN REGEXP_CONTAINS(BR_HST_PG,'[5-9]')
+                OR BR_MOP IN ('05','06','07','09','96','97','99') 
+                OR BR_CVE_OBS IN ('CL','CR','FD','FR','IR','LO','MD','PC','PS','RQ','SP','ST','UP','VR')
+                OR BR_MOP_MOR_GVE IN ('05','06','07','09','96','97','99') THEN 1 ELSE 0 END AS dpd90M
+        ,CASE WHEN BR_CVE_OBS IN ('CL','CR','FD','FR','IR','LO','MD','PC','PS','RQ','SP','ST','UP','VR')
+                OR BR_MOP IN ('07','09','96','97','99')
+                OR BR_MOP_MOR_GVE IN ('07','09','96','97','99') THEN 1 ELSE 0 END AS Derogatory
+        ,CASE WHEN REGEXP_CONTAINS(BR_HST_PG, '6')
+                OR BR_MOP='06'
+                OR BR_MOP_MOR_GVE='06' THEN 1 ELSE 0 END AS dpd120
+        ,CASE WHEN REGEXP_CONTAINS(BR_HST_PG, '5')
+                OR BR_MOP='05'
+                OR BR_MOP_MOR_GVE='05'
+                OR BR_TOT_PAG_MOP05>0 THEN 1 ELSE 0 END AS dpd90
+        ,CASE WHEN REGEXP_CONTAINS(BR_HST_PG, '4')
+                OR BR_MOP='04'
+                OR BR_MOP_MOR_GVE='04'
+                OR BR_TOT_PAG_MOP04>0 THEN 1 ELSE 0 END AS dpd60
+        ,CASE WHEN REGEXP_CONTAINS(BR_HST_PG, '3')
+                OR BR_MOP='03'
+                OR BR_MOP_MOR_GVE='03'
+                OR BR_TOT_PAG_MOP03>0 THEN 1 ELSE 0 END AS dpd30
+        ,CASE WHEN REGEXP_CONTAINS(BR_HST_PG, '2')
+                OR BR_MOP='02'
+                OR BR_MOP_MOR_GVE='02'
+                OR BR_TOT_PAG_MOP02>0 THEN 1 ELSE 0 END AS dpd29
+        ,CASE WHEN BR_SDO_VNC IS NULL OR BR_MONEDA IS NULL THEN -999
+              WHEN CAST(BR_SDO_VNC AS STRING) LIKE '%-%' THEN 0
+              WHEN BR_MONEDA IN ('UD', 'US') THEN -998
+              WHEN BR_SDO_VNC>=0 AND BR_MONEDA IN ('MX', 'N$') THEN BR_SDO_VNC
+              ELSE 0
+              END AS NrmSdoVnc
+        ,CASE WHEN BR_LIM_CRD IS NULL OR BR_MONEDA IS NULL THEN -999
+              WHEN CAST(BR_LIM_CRD AS STRING) LIKE '-%' THEN 0
+              WHEN BR_MONEDA IN ('UD', 'US') THEN -998
+              WHEN BR_LIM_CRD>=0 AND BR_MONEDA IN ('MX', 'N$') THEN BR_LIM_CRD
+              ELSE 0
+              END AS NrmLimCrd
+        ,CASE WHEN BR_SDO IS NULL OR BR_MONEDA IS NULL THEN -999
+              WHEN CAST(BR_SDO AS STRING) LIKE '-%' THEN 0
+              WHEN BR_MONEDA IN ('UD', 'US') THEN -998
+              WHEN BR_SDO>=0 AND BR_MONEDA IN ('MX', 'N$') THEN BR_SDO
+              ELSE 0
+              END AS NrmSdoAct
+        ,CASE WHEN BR_CRD_MAX IS NULL OR BR_MONEDA IS NULL THEN -999
+              WHEN CAST(BR_CRD_MAX AS STRING) LIKE '-%' THEN 0
+              WHEN BR_MONEDA IN ('UD', 'US') THEN -998
+              WHEN BR_CRD_MAX>=0 AND BR_MONEDA IN ('MX', 'N$') THEN BR_CRD_MAX
+              ELSE 0
+              END AS NrmCrdMax
+        ,CASE WHEN BR_SDO_MOR IS NULL OR BR_MONEDA IS NULL THEN -999
+              WHEN CAST(BR_SDO_MOR AS STRING) LIKE '-%' THEN 0
+              WHEN BR_MONEDA IN ('UD', 'US') THEN -998
+              WHEN BR_SDO_MOR>=0 AND BR_MONEDA IN ('MX', 'N$') THEN BR_SDO_MOR
+              ELSE 0
+              END AS NrmSdoMor
+        ,(SELECT MAX(CAST(valor AS INT64))
+          FROM UNNEST(SPLIT(SUBSTR(BR_HST_PG, 1, 3), '')) AS valor
+          WHERE valor NOT IN ('-', 'D', 'U', 'X') AND SAFE_CAST(valor AS INT64) IS NOT NULL
+        ) AS MAX_MORA_U3_MESES
+        ,(SELECT MAX(CAST(valor AS INT64))
+          FROM UNNEST(SPLIT(SUBSTR(BR_HST_PG, 1, 12), '')) AS valor
+          WHERE valor NOT IN ('-', 'D', 'U', 'X') AND SAFE_CAST(valor AS INT64) IS NOT NULL
+        ) AS MAX_MORA_U12_MESES
+        ,(SELECT MAX(CAST(valor AS INT64))
+          FROM UNNEST(SPLIT(SUBSTR(BR_HST_PG, 1, 9), '')) AS valor
+          WHERE valor NOT IN ('-', 'D', 'U', 'X') AND SAFE_CAST(valor AS INT64) IS NOT NULL
+        ) AS MAX_MORA_U9_MESES  
+        ,CASE WHEN BR_CVE_OBS IN ('CC') THEN 1
+			        WHEN BR_FCH_CIERRE = '1900-01-01' THEN 0
+			        WHEN BR_FCH_CIERRE IS NULL THEN 0
+			        ELSE 1 END AS CTA_CERRADA    
+        ,CASE WHEN BR_CVE_OBS NOT IN ('CC') AND (BR_FCH_CIERRE = '1900-01-01' OR BR_FCH_CIERRE IS NULL) THEN 1 ELSE 0 END AS CTA_ACTIVA
+        ,CASE WHEN BR_LIM_CRD IS NOT NULL AND BR_LIM_CRD NOT IN (0, 1) THEN BR_LIM_CRD ELSE BR_CRD_MAX END AS CREDITLIMIT_HIGHCREDIT   
+  FROM VFAC_BR_TL
+),
+
+VFAC_BR_TL_AUX2 AS (
+  SELECT 
+    *,
+    CASE WHEN MESES_ACT<=6 THEN GREATEST(TL_MAX_MOP_HST_PAG_6M,COALESCE(SAFE_CAST(BR_MOP AS NUMERIC),0)) ELSE TL_MAX_MOP_HST_PAG_6M END AS TL_MAX_MOP_6M
+  FROM (
+  SELECT 
+    *,
+    CASE 
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'9')=true THEN 9 
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'8')=true THEN 8 
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'7')=true THEN 7 
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'6')=true THEN 6 
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'7')=true THEN 5 
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'4')=true THEN 4 
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'3')=true THEN 3 
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'2')=true THEN 2
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'1')=true THEN 1 
+      WHEN CONTAINS_SUBSTR(HST_PAG_6M,'0')=true THEN 0  
+      ELSE 0 
+    END AS TL_MAX_MOP_HST_PAG_6M
+  FROM (
+  SELECT *
+        ,CASE WHEN MESES_UPDATE_HST_PAG>6 THEN 'No valido'
+            WHEN MESES_UPDATE_HST_PAG<=6 THEN SUBSTR(BR_HST_PG,1,6-MESES_UPDATE_HST_PAG) END AS HST_PAG_6M
+        ,CASE WHEN CTA_CERRADA=0 AND BR_TIP_CONT IN ('CC') AND MthsAct <= 6 THEN BR_SDO ELSE 0 END AS TL_TOT_REV_OPN_BAL_L6M
+        ,CASE WHEN CTA_CERRADA=0 AND BR_TIP_CONT IN ('CC') AND MthsAct <= 6 THEN CREDITLIMIT_HIGHCREDIT ELSE 0 END AS TL_TOT_REV_OPN_LC_L6M
+        ,CASE WHEN BR_TIP_CONT IN ('CC') THEN 0
+              WHEN BR_TIP_CONT NOT IN ('CC') AND CTA_CERRADA=0 AND MthsOpn <= 12 THEN 1 
+              ELSE 0 END AS NUM_NREV_OPN__L12M
+        ,CASE WHEN BR_TIP_CONT NOT IN ('CC') THEN 0
+              WHEN BR_TIP_CONT IN ('CC') AND CTA_CERRADA=0 AND MthsOpn <= 9 THEN 1 ELSE 0 END AS NUM_REV_OPN_ACC_L9M
+        ,(SELECT MIN(val)
+          FROM UNNEST([
+            CASE 
+              WHEN REGEXP_CONTAINS(BR_HST_PG, '[5-9]') THEN 
+                CASE 
+                  WHEN BR_FCH_CREC_HST_PAG IS NULL OR BR_FCH_CREC_HST_PAG = DATE '1900-01-01' THEN 
+                    REGEXP_INSTR(BR_HST_PG, '[5-9]') - 1
+                  ELSE 
+                    (REGEXP_INSTR(BR_HST_PG, '[5-9]') - 1)
+                    + DATE_DIFF(DT_FCH_SOL, BR_FCH_CREC_HST_PAG, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_CREC_HST_PAG) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP IN ('05','06','07','09','96','97','99') 
+                OR BR_CVE_OBS IN ('CL','CR','FD','FR','IR','LO','MD','PC','PS','RQ','SP','ST','UP','VR') THEN 
+                CASE 
+                  WHEN BR_FCH_REPO IS NULL OR BR_FCH_REPO = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_REPO, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_REPO) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP_MOR_GVE IN ('05','06','07','09','96','97','99') THEN 
+                CASE 
+                  WHEN BR_FCH_MOR_GVE IS NULL OR BR_FCH_MOR_GVE = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_MOR_GVE, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_MOR_GVE) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END
+
+          ]) AS val
+        ) AS Mths90m
+        ,(SELECT MIN(val)
+          FROM UNNEST([
+            CASE 
+              WHEN BR_CVE_OBS IN ('CL','CR','FD','FR','IR','LO','MD','PC','PS','RQ','SP','ST','UP','VR') 
+                  OR BR_MOP IN ('07','09','96','97','99') THEN
+                CASE 
+                  WHEN BR_FCH_REPO IS NULL OR BR_FCH_REPO = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_REPO, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_REPO) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP_MOR_GVE IN ('07','09','96','97','99') THEN
+                CASE 
+                  WHEN BR_FCH_MOR_GVE IS NULL OR BR_FCH_MOR_GVE = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_MOR_GVE, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_MOR_GVE) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END
+          ]) AS val
+        ) AS MthsSncDerogatory
+        ,(SELECT MIN(val)
+          FROM UNNEST([
+            CASE 
+              WHEN REGEXP_CONTAINS(BR_HST_PG, '6') THEN 
+                CASE 
+                  WHEN BR_FCH_CREC_HST_PAG IS NULL OR BR_FCH_CREC_HST_PAG = DATE '1900-01-01' THEN 
+                    REGEXP_INSTR(BR_HST_PG, '6') - 1
+                  ELSE 
+                    (REGEXP_INSTR(BR_HST_PG, '6') - 1) 
+                    + DATE_DIFF(DT_FCH_SOL, BR_FCH_CREC_HST_PAG, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_CREC_HST_PAG) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP = '06' THEN 
+                CASE 
+                  WHEN BR_FCH_REPO IS NULL OR BR_FCH_REPO = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_REPO, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_REPO) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP_MOR_GVE = '06' THEN 
+                CASE 
+                  WHEN BR_FCH_MOR_GVE IS NULL OR BR_FCH_MOR_GVE = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_MOR_GVE, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_MOR_GVE) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END
+
+          ]) AS val
+        ) AS Mths120d
+        ,(SELECT MIN(val)
+          FROM UNNEST([
+            CASE 
+              WHEN REGEXP_CONTAINS(BR_HST_PG, '5') THEN 
+                CASE 
+                  WHEN BR_FCH_CREC_HST_PAG IS NULL OR BR_FCH_CREC_HST_PAG = DATE '1900-01-01' THEN 
+                    REGEXP_INSTR(BR_HST_PG, '5') - 1
+                  ELSE 
+                    (REGEXP_INSTR(BR_HST_PG, '5') - 1) 
+                    + DATE_DIFF(DT_FCH_SOL, BR_FCH_CREC_HST_PAG, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_CREC_HST_PAG) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP = '05' THEN 
+                CASE 
+                  WHEN BR_FCH_REPO IS NULL OR BR_FCH_REPO = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_REPO, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_REPO) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP_MOR_GVE = '05' THEN 
+                CASE 
+                  WHEN BR_FCH_MOR_GVE IS NULL OR BR_FCH_MOR_GVE = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_MOR_GVE, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_MOR_GVE) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_TOT_PAG_MOP05 > 0 AND MthsOpn > 0 THEN MthsOpn
+              ELSE 1200
+            END
+
+          ]) AS val
+        ) AS Mths90d
+        ,(SELECT MIN(val)
+          FROM UNNEST([
+            CASE 
+              WHEN REGEXP_CONTAINS(BR_HST_PG, '4') THEN 
+                CASE 
+                  WHEN BR_FCH_CREC_HST_PAG IS NULL OR BR_FCH_CREC_HST_PAG = DATE '1900-01-01' THEN 
+                    REGEXP_INSTR(BR_HST_PG, '4') - 1
+                  ELSE 
+                    (REGEXP_INSTR(BR_HST_PG, '4') - 1) 
+                    + DATE_DIFF(DT_FCH_SOL, BR_FCH_CREC_HST_PAG, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_CREC_HST_PAG) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP = '04' THEN 
+                CASE 
+                  WHEN BR_FCH_REPO IS NULL OR BR_FCH_REPO = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_REPO, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_REPO) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP_MOR_GVE = '04' THEN 
+                CASE 
+                  WHEN BR_FCH_MOR_GVE IS NULL OR BR_FCH_MOR_GVE = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_MOR_GVE, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_MOR_GVE) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_TOT_PAG_MOP04 > 0 AND MthsOpn > 0 THEN MthsOpn
+              ELSE 1200
+            END
+
+          ]) AS val
+        ) AS Mths60d
+        ,(SELECT MIN(val)
+          FROM UNNEST([
+            CASE 
+              WHEN REGEXP_CONTAINS(BR_HST_PG, '3') THEN 
+                CASE 
+                  WHEN BR_FCH_CREC_HST_PAG IS NULL OR BR_FCH_CREC_HST_PAG = DATE '1900-01-01' THEN 
+                    REGEXP_INSTR(BR_HST_PG, '3') - 1
+                  ELSE 
+                    (REGEXP_INSTR(BR_HST_PG, '3') - 1) 
+                    + DATE_DIFF(DT_FCH_SOL, BR_FCH_CREC_HST_PAG, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_CREC_HST_PAG) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP = '03' THEN 
+                CASE 
+                  WHEN BR_FCH_REPO IS NULL OR BR_FCH_REPO = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_REPO, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_REPO) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP_MOR_GVE = '03' THEN 
+                CASE 
+                  WHEN BR_FCH_MOR_GVE IS NULL OR BR_FCH_MOR_GVE = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_MOR_GVE, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_MOR_GVE) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_TOT_PAG_MOP03 > 0 AND MthsOpn > 0 THEN MthsOpn
+              ELSE 1200
+            END
+
+          ]) AS val
+        ) AS Mths30d
+        ,(SELECT MIN(val)
+          FROM UNNEST([
+            CASE 
+              WHEN REGEXP_CONTAINS(BR_HST_PG, '2') THEN 
+                CASE 
+                  WHEN BR_FCH_CREC_HST_PAG IS NULL OR BR_FCH_CREC_HST_PAG = DATE '1900-01-01' THEN 
+                    REGEXP_INSTR(BR_HST_PG, '2') - 1
+                  ELSE 
+                    (REGEXP_INSTR(BR_HST_PG, '2') - 1) 
+                    + DATE_DIFF(DT_FCH_SOL, BR_FCH_CREC_HST_PAG, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_CREC_HST_PAG) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP = '02' THEN 
+                CASE 
+                  WHEN BR_FCH_REPO IS NULL OR BR_FCH_REPO = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_REPO, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_REPO) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_MOP_MOR_GVE = '02' THEN 
+                CASE 
+                  WHEN BR_FCH_MOR_GVE IS NULL OR BR_FCH_MOR_GVE = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_MOR_GVE, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_MOR_GVE) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN BR_TOT_PAG_MOP02 > 0 AND MthsOpn > 0 THEN MthsOpn
+              ELSE 1200
+            END
+
+          ]) AS val
+        ) AS Mths29d
+        ,(SELECT MIN(val)
+          FROM UNNEST([
+            CASE 
+              WHEN BR_MOP_MOR_GVE IN ('02', '03', '04', '05', '06', '07','09','96', '97', '99') THEN 
+                CASE 
+                  WHEN BR_FCH_MOR_GVE IS NULL OR BR_FCH_MOR_GVE = DATE '1900-01-01' THEN 1200
+                  ELSE 
+                    DATE_DIFF(DT_FCH_SOL, BR_FCH_MOR_GVE, MONTH)
+                    - CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) < EXTRACT(DAY FROM BR_FCH_MOR_GVE) THEN 1 ELSE 0 END
+                END
+              ELSE 1200
+            END,
+            CASE 
+              WHEN NrmSdoVnc > 0 OR BR_NUM_PAG_VNC > 0 THEN 
+                LEAST(MthsOpn, MthsRep)
+              ELSE 1200
+            END
+          ]) AS val
+        ) AS MthsUnk
+        ,CASE WHEN BR_MOP_MOR_GVE IN ('02','03','04','05','06','07','09','96','97','99')
+                OR NrmSdoVnc>0
+                OR BR_NUM_PAG_VNC>0 THEN 1 ELSE 0 END AS UnkDelq
+        ,CASE WHEN BR_MOP='01'
+               AND NrmSdoVnc=0
+               AND NOT BR_CVE_OBS IN ('CL','CR','FD','FR','IR','LO','MD','PC','PS','RQ','SP','ST','UP','VR') THEN 1 ELSE 0 END AS NvrDlq
+        ,CASE WHEN BR_MOP = '01' 
+               AND NrmSdoVnc <= 0 
+               AND NOT BR_CVE_OBS IN ('CL','CR','FD','FR','IR','LO','MD','PC','PS','RQ','SP','ST','UP','VR') THEN
+               LEAST(CASE WHEN EXTRACT(DAY FROM DT_FCH_SOL) >= EXTRACT(DAY FROM BR_FCH_REPO) THEN DATE_DIFF(DT_FCH_SOL, BR_FCH_REPO, MONTH)
+                          ELSE DATE_DIFF(DT_FCH_SOL, BR_FCH_REPO, MONTH) - 1
+                          END,1200
+                )
+              ELSE 1200
+            END AS MthsNvrDlq
+        ,CASE WHEN MthsRep BETWEEN 0 AND 11 AND NrmSdoAct>0 THEN 1
+              WHEN MthsRep BETWEEN 0 AND 11 AND InstTL=1 AND NrmSdoAct=0 THEN 0
+              WHEN MthsRep BETWEEN 0 AND 11 AND BR_CVE_OBS NOT IN ('CA','CC','CI','CL','CM','CR','CV','CZ','FD','FN','GP','IR','LS','MD','NA','NV','PC','PS','RE','RF','RI','RQ','SP','ST','TC','TL','TR','UP','VR') AND MthsClsd<0 THEN 1
+                   ELSE 0
+          END AS OpenTl
+        ,CASE WHEN InstTL=1 AND NrmCrdMax>=0 THEN NrmCrdMax
+              WHEN InstTL=1 THEN NrmLimCrd
+              WHEN RevTL=1 AND NrmLimCrd>=0 THEN NrmLimCrd
+              WHEN RevTL=1 THEN NrmCrdMax
+              ELSE -999
+            END AS CrdAmnt
+        ,CASE WHEN BR_CVE_OBS != 'CC' AND (BR_FCH_CIERRE = '1900-01-01' OR BR_FCH_CIERRE IS NULL)
+        AND NOT BR_NOM_OTORG IN (
+            'COMUNICACIONES', 'SERVICIOS', 'ABC SERVICIOS', 'ADT PRIVATE', 'ALESTRA', 'AXTEL', 'BODESA', 'C A TELEFONISTAS',
+            'CABLEVISION DF', 'COMCEL', 'COORDINADORA REC', 'DISH', 'EDITORIAL', 'IUSACELL', 'JOYERIASBIZZARRO', 'MIXUP',
+            'MVS QRO', 'NEXTEL', 'OPTICAS DEVLYN', 'PEGASO', 'ROYAL PRESTIGE', 'SERV RURALES', 'SERVICIO MEDICO',
+            'SERVS. GRALES.', 'SKY TV', 'TELCEL CHI', 'TELCEL GDJ', 'TELCEL HER', 'TELCEL MER', 'TELCEL MTY', 'TELCEL PUE',
+            'TELCEL QUE', 'TELCELMETRO', 'TELMEX'
+          )
+        THEN DATE_DIFF(DT_FCH_SOL, BR_FCH_AP, MONTH) ELSE 0 
+      END AS MESES_ACTIVIDAD
+      ,CASE WHEN BR_NOM_OTORG IN (
+            'LIVERPOOL','SUBURBIA TD','SUBURBIA VISA','LIV PREMIUM CARD',
+            'LIVAUTO','MINIPAGOS SBB','PERSONAL SBB'
+          ) THEN 1 END AS BR_CTA_LIV
+        ,CASE WHEN BR_NOM_OTORG IN (
+              'COMUNICACIONES','SERVICIOS','ABC SERVICIOS','ADT PRIVATE','ALESTRA','AXTEL','BODESA',
+              'C A TELEFONISTAS','CABLEVISION DF','COMCEL','COORDINADORA REC','DISH','EDITORIAL',
+              'IUSACTA_VALIDACELL','JOYERIASBIZZARRO','MIXUP','MVS QRO','NEXTEL','OPTICAS DEVLYN','PEGASO',
+              'ROYAL PRESTIGE','SERV RURALES','SERVICIO MEDICO','SERVS. GRALES.','SKY TV','TELCEL CHI',
+              'TELCEL GDJ','TELCEL HER','TELCEL MER','TELCEL MTY','TELCEL PUE','TELCEL QUE','TELCELMETRO','TELMEX'
+            )
+            THEN 0 ELSE 1 END AS CTA_VALIDA, -- Flag cuenta valida
+  FROM VFAC_BR_TL_AUX1
+  )
+  )
+),
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+--                                                    03. CARACTERÍSTICAS
+------------------------------------------------------------------------------------------------------------------------------------------------------
+VFAC_BR_IQ_VARS AS (
+  SELECT BR_SOLIC_CVE
+        ,BR_TIPO
+        ,SUM(CASE WHEN DaysInq <= 30 AND ConsAct=0 THEN 1 ELSE 0 END) AS numInqLast30Days
+        ,SUM(CASE WHEN MthsInq <= 5 AND ConsAct=0 THEN 1 ELSE 0 END) AS numInq0to5Mos
+        ,SUM(CASE WHEN MthsInq <= 12 AND ConsAct=0 THEN 1 ELSE 0 END) AS IQ_NUM_INQ_TOT_L12M
+        ,SUM(CASE WHEN MthsInq>=0 AND MthsInq<12 AND BR_TIP_CONT='CC' THEN 1 ELSE 0 END) AS InqRevLast12Months
+        ,SUM(CASE WHEN MthsInq>=0 AND MthsInq<12 THEN 1 ELSE 0 END) AS InqLast12Months
+        ,SUM(CASE WHEN MthsInq <= 24 AND ConsAct=0 AND BR_TIP_CONT NOT IN ('CC') THEN 1 ELSE 0 END) AS IQ_NUM_INQ_NREV_L24M
+        ,SUM(CASE WHEN MthsInq <= 6 AND ConsAct=0 AND BR_TIP_CONT NOT IN ('CC') THEN 1 ELSE 0 END) AS IQ_NUM_INQ_NREV_L6M
+        ,SUM(CASE WHEN MthsInq <= 9 AND ConsAct=0 AND BR_TIP_CONT NOT IN ('CC') THEN 1 ELSE 0 END) AS IQ_NUM_INQ_NREV_L9M
+        ,SUM(CASE WHEN BR_NOM_OTORG='LIVERPOOL' AND MthsInq=0 THEN 0
+                  WHEN MthsInq >= 0 AND MthsInq < 3 AND BR_TIP_CONT NOT IN ('CC') THEN 1
+                  ELSE 0 END) AS IQ_NUM_INQ_NREV_1TO3M
+        ,SUM(CASE WHEN BR_NOM_OTORG='LIVERPOOL' AND MthsInq=0 THEN 0
+                  WHEN MthsInq >= 0 AND MthsInq < 12 AND BR_TIP_CONT IN ('CC') THEN 1
+                  ELSE 0 END) AS IQ_NUM_INQ_REV_L12M
+        ,SUM(CASE WHEN MthsInq <= 3 AND ConsAct = 0 THEN 1 ELSE 0 END) AS IQ_NUM_CONS_3M
+        ,SUM(CASE WHEN MthsInq <= 3 AND ConsAct = 0 AND BR_TIP_CONT IN ('CC', 'CL') THEN 1 ELSE 0 END) AS IQ_NUM_CONS_REV_3M
+  FROM VFAC_BR_IQ_AUX
+  GROUP BY 1,2
+),
+
+VFAC_BR_TL_FN AS (
+  SELECT BR_SOLIC_CVE
+        ,BR_TIPO
+        ,MAX(MESES_ACTIVIDAD) AS TL_MAX_ANT_CTAS_ABT
+        ,SUM(CASE WHEN CLOSED_FLAG=0 AND FLG_REVOLVENTE=1 AND MthsOpn>=0 AND MthsOpn <=6 THEN 1 ELSE 0 END) AS TL_NUM_REV_OPN_ACC_L6M
+        ,MAX(CASE WHEN CLOSED_FLAG=0 THEN COALESCE(MAX_MORA_U3_MESES,0) ELSE 0 END) AS TL_MAX_OPN_MAXDLQ3M
+        ,MAX(CASE WHEN CLOSED_FLAG=0 AND FLG_REVOLVENTE=1 THEN COALESCE(MAX_MORA_U12_MESES,0) ELSE -999 END) AS TL_MAX_REV_OPN_MXDLQ12M
+        ,MAX(CASE WHEN CLOSED_FLAG=0 AND MthsAct<=24 THEN COALESCE(MAX_MORA_U12_MESES,0) ELSE -999 END) AS TL_MAX_OPN_MAXDLQ12M_L24M
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTL=1 AND CrdAmnt>0 THEN 1 ELSE 0 END) AS num_revolving_TL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTL=1 AND CrdAmnt>0 THEN CrdAmnt ELSE 0 END) AS LINEA_REV
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND AutoLoanTL=1 THEN 1 ELSE 0 END) AS numAutoLoanTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTl=1 THEN 1 ELSE 0 END) AS numRevTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTl=1 AND Dispute=0 AND Ever30m=1 THEN 1 ELSE 0 END) AS nRevTL30pEver
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (RevTl=1 OR OpenEnd=1) THEN 1 ELSE 0 END) AS numRevOpenTl
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (RevTl=1 OR OpenEnd=1) AND Dispute=0 AND Ever30m=1 THEN 1 ELSE 0 END) AS nRevOpenTL30pEver
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND MthsOpn<=11 THEN 1 ELSE 0 END) AS numTLOpnd0to11Mos
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 THEN 1 ELSE 0 END) AS nTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND InstTL=1 THEN 1 ELSE 0 END) AS nInsTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND StTL=0 AND TelCoTL=0 AND Dispute=0 THEN 1 ELSE 0 END) AS nTLExclTelAndStu
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND StTL=0 AND TelCoTL=0 AND Dispute=0 AND Ever1_29m=0 AND NrmSdoVnc<=0 THEN 1 ELSE 0 END) AS nTLNeverDelqExclTelAndStu
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND MthsRep<=2 THEN 1 ELSE 0 END) AS nTLMthsRep3m
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND MthsRep<=2 AND MthsOpn >=0 THEN MthsOpn ELSE 0 END) AS nMthsOpn
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND MthsRep<=2 AND MthsOpn >=0 THEN 1 ELSE 0 END) AS nTLMiF
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTL=1 AND Dispute=0 AND OpenTL=1 THEN 1 ELSE 0 END) AS nmRevOpenTl
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTL=1 AND Dispute=0 AND OpenTL=1 AND MtgTL=0 AND NrmSdoAct>=0 AND CrdAmnt>0 THEN 1 ELSE 0 END) AS nmValRevTL
+        ,MAX(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTL = 1 AND Dispute = 0 AND OpenTL = 1 THEN
+                CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND MtgTL = 0 AND NrmSdoAct >= 0 AND CrdAmnt > 0 THEN
+                    CASE WHEN ((NrmSdoAct * 100.0) / CrdAmnt) > 0 AND ((NrmSdoAct * 100.0) / CrdAmnt) < 1 THEN 1
+                      ELSE ROUND((NrmSdoAct * 100.0) / CrdAmnt, 4)
+                    END
+                  ELSE -999
+                END
+              ELSE -999
+            END) AS highestUtilOnRevTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND ((bankTL=1 AND RevTL=1) OR OpenEnd=1) THEN 1 ELSE 0 END) AS nmBankRevOpenTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND ((bankTL=1 AND RevTL=1) OR OpenEnd=1) AND MthsOpn>=0 THEN 1 ELSE 0 END) AS nmValBankRevOpenTL
+        ,MAX(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND ((bankTL=1 AND RevTL=1) OR OpenEnd=1) AND MthsOpn>=0 THEN MthsOpn ELSE -1 END) AS mosSncOldBankNatlRevOpnTLOpnd
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTL=1 AND MthsOpn>=0 THEN 1 ELSE 0 END) AS nValRevTl
+        ,MAX(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTL=1 AND MthsOpn>=0 THEN MthsOpn ELSE 0 END) AS mosSncOldestRevTLOpnd
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTl=1 AND Dispute=0 AND OpenTL=1 THEN 1 ELSE 0 END) AS nRevOpnTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTl=1 AND Dispute=0 AND OpenTL=1 AND CrdAmnt>=0 AND NrmSdoAct>=0 THEN 1 ELSE 0 END) AS numValRevTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTl=1 AND Dispute=0 AND OpenTL=1 AND CrdAmnt>=0 AND NrmSdoAct>=0 AND CrdAmnt>0 THEN CrdAmnt ELSE 0 END) AS TotCredAmnt
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND RevTl=1 AND Dispute=0 AND OpenTL=1 AND CrdAmnt>=0 AND NrmSdoAct>=0 AND CrdAmnt>0 THEN NrmSdoAct ELSE 0 END) AS CurrBal
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (InstTL=1 OR RevTL=1) AND MthsOpn<=11 THEN 1 ELSE 0 END) AS nmTLOpnd0To11
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (InstTL=1 OR RevTL=1) AND MthsOpn<=11 AND Dispute=0 AND OpenTL=1 THEN 1 ELSE 0 END) AS nmOpnTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (InstTL=1 OR RevTL=1) AND MthsOpn<=11 AND Dispute=0 AND OpenTL=1 AND MtgTL=0 AND CrdAmnt>=0 AND NrmSdoAct>=0 THEN CrdAmnt ELSE 0 END) AS TotCreditAmount
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (InstTL=1 OR RevTL=1) AND MthsOpn<=11 AND Dispute=0 AND OpenTL=1 AND MtgTL=0 AND CrdAmnt>=0 AND NrmSdoAct>=0 THEN NrmSdoAct ELSE 0 END) AS TotCurrBalance
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (InstTL=1 OR RevTL=1) AND MthsOpn<=23 THEN 1 ELSE 0 END) AS nmTLOpnd0To23
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (InstTL=1 OR RevTL=1) AND MthsOpn<=23 AND Dispute=0 AND OpenTL=1 THEN 1 ELSE 0 END) AS nmbrOpnTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (InstTL=1 OR RevTL=1) AND MthsOpn<=23 AND Dispute=0 AND OpenTL=1 AND MtgTL=0 AND CrdAmnt>=0 AND NrmSdoAct>=0 THEN 1 ELSE 0 END) AS nmbrValOpnTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (InstTL=1 OR RevTL=1) AND MthsOpn<=23 AND Dispute=0 AND OpenTL=1 AND MtgTL=0 AND CrdAmnt>=0 AND NrmSdoAct>=0 THEN CrdAmnt ELSE 0 END) AS TotalCreditAmount
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND (InstTL=1 OR RevTL=1) AND MthsOpn<=23 AND Dispute=0 AND OpenTL=1 AND MtgTL=0 AND CrdAmnt>=0 AND NrmSdoAct>=0 THEN NrmSdoAct ELSE 0 END) AS TotalCurrBalance
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 THEN 1 ELSE 0 END) AS nValTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND ((InstTL=1 OR RevTL=1) AND MthsOpn<=11) AND Dispute=0 AND OpenTL=1 AND MtgTL=0 AND CrdAmnt>=0 AND NrmSdoAct>=0 THEN 1 ELSE 0 END) AS nmValTL
+        ,MIN(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 AND Derogatory=1 AND MthsSncDerogatory<=11 THEN 1
+                  WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 AND dpd120=1 AND Mths120d<=11 THEN 2
+                  WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 AND dpd90=1 AND Mths90d<=11 THEN 3
+                  WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 AND dpd60=1 AND Mths60d<=11 THEN 4
+                  WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 AND dpd30=1 AND Mths30d<=11 THEN 5
+                  WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 AND dpd29=1 AND Mths29d<=11 THEN 6
+                  WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 AND UnkDelq=1 AND MthsUnk<=11 THEN 7
+                  WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 AND (
+                    (Derogatory=1 AND MthsSncDerogatory>=12) OR
+                    (dpd120=1 AND Mths120d>=12) OR
+                    (dpd90=1 AND Mths90d>=12) OR
+                    (dpd60=1 AND Mths60d>=12) OR
+                    (dpd30=1 AND Mths30d>=12) OR
+                    (dpd29=1 AND Mths29d>=12) OR
+                    (UnkDelq=1 AND MthsUnk>=12)
+                  ) THEN 8
+                  WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 AND NvrDlq=1 AND MthsOpn>=3 AND MthsNvrDlq<=11 THEN 9
+                  WHEN CollTL=0 AND AuthUsrTLFlg=0 AND Dispute=0 THEN 10
+                  ELSE 99 END) AS maxDelq0To11Mos
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND bankTL=1 AND RevTL=1 THEN 1 ELSE 0 END) AS nBankRevTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND bankTL=1 AND RevTL=1 AND Dispute=0 AND OpenTL=1 THEN 1 ELSE 0 END) AS nBankRevOpenTL
+        ,SUM(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND bankTL=1 AND RevTL=1 AND Dispute=0 AND OpenTL=1 AND MtgTL=0 AND NrmSdoAct>=0 AND CrdAmnt>0 THEN 1 ELSE 0 END) AS ValBankRevTL
+        ,MAX(CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND bankTL=1 AND RevTL = 1 AND Dispute = 0 AND OpenTL = 1 THEN
+                CASE WHEN CollTL=0 AND AuthUsrTLFlg=0 AND bankTL=1 AND MtgTL = 0 AND NrmSdoAct >= 0 AND CrdAmnt > 0 THEN
+                    CASE WHEN ((NrmSdoAct * 100.0) / CrdAmnt) > 0 AND ((NrmSdoAct * 100.0) / CrdAmnt) < 1 THEN 1
+                      ELSE ROUND((NrmSdoAct * 100.0) / CrdAmnt, 4)
+                    END
+                  ELSE -999
+                END
+              ELSE -999
+            END) AS highestUtilOnBankNatlRevTL
+        ,SUM(CASE WHEN AuthUsrTLFlg=0 AND ((Dispute=0 AND Ever60m=1) or CollTL=1) THEN 1 ELSE 0 END) AS numTL60pDaysEverColl
+        ,SUM(CASE WHEN AuthUsrTLFlg=0 AND CollTL=1 THEN 1 ELSE 0 END) AS nmCollTL
+        ,SUM(CASE WHEN AuthUsrTLFlg=0 AND CollTL=0 AND Dispute=0 AND dpd90m=1 THEN 1 ELSE 0 END) AS numTL90
+        ,LEAST(MIN(CASE WHEN CollTL = 1 THEN MthsColl ELSE 1200 END),
+               MIN(CASE WHEN CollTL = 0 AND Dispute = 0 AND dpd90m = 1 THEN Mths90m ELSE 1200 END)
+              ) AS mosSncMostRcntDerog
+        ,SUM(TL_TOT_REV_OPN_BAL_L6M) AS TL_TOT_REV_OPN_BAL_L6M
+        ,SUM(TL_TOT_REV_OPN_LC_L6M) AS TL_TOT_REV_OPN_LC_L6M
+        ,MAX(CASE WHEN CTA_CERRADA=0 AND BR_TIP_CONT IN ('CC') THEN MAX_MORA_U9_MESES ELSE -999 END) AS TL_MAX_REV_OPN_MAXDLQ9M
+        ,SUM(CREDITLIMIT_HIGHCREDIT)/COUNT(*) AS BR_CRD_MAX
+        ,SUM(NUM_NREV_OPN__L12M) AS TL_NUM_NREV_OPN_L12M
+        ,SUM(NUM_REV_OPN_ACC_L9M) AS TL_NUM_REV_OPN_ACC_L9M
+        ,MAX(CASE WHEN CTA_CERRADA=0 THEN MthsOpn ELSE 0 END) AS TL_MAX_MTH_OPN_ACC
+        ,SUM(CTA_CERRADA) AS TL_NUM_CLSD_ACC
+        ,SUM(CASE WHEN CTA_ACTIVA=1 THEN BR_IMP_PAG ELSE 0 END) AS TL_SUM_IMP_PAG_ABT
+        ,MAX(CASE WHEN BR_TIP_CTA='R' AND CTA_VALIDA=1 AND CTA_ACTIVA=1 THEN TL_MAX_MOP_6M ELSE -9999 END) AS TL_MAX_MOP_CTAS_REV_ABT_6M
+        ,MAX(CASE WHEN BR_CTA_LIV = 1 AND CTA_ACTIVA = 1 THEN MESES_ACTIVIDAD ELSE -9999 END) AS TL_MAX_ANT_CTAS_LIV_ABT
+  FROM VFAC_BR_TL_AUX2
+  GROUP BY 1,2
+),
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+--                                                    04. VALORES ESPECIALES
+------------------------------------------------------------------------------------------------------------------------------------------------------
+VFAC_BR_TL_FN_VARS AS (
+  SELECT * EXCEPT(highestUtilOnBankNatlRevTL, highestUtilOnRevTL, maxDelq0To11Mos, mosSncMostRcntDerog, mosSncOldBankNatlRevOpnTLOpnd, mosSncOldestRevTLOpnd)
+        ,CASE WHEN numRevTL = 0 THEN -99792 ELSE nRevTL30pEver END AS numRevTL30pEver
+        ,CASE WHEN numRevOpenTL = 0 THEN -99792 ELSE nRevOpenTL30pEver END AS numRevOpenTL30pEver
+        ,CASE WHEN nTL = 0 THEN -99792
+              WHEN (nInsTL * 100.0 / nTL) > 0 AND (nInsTL * 100.0 / nTL) < 1 THEN 1
+              ELSE ROUND(nInsTL * 100.0 / nTL, 4)
+              END AS pctILTL
+        ,CASE WHEN nTLExclTelAndStu = 0 THEN -99792
+              WHEN (nTLNeverDelqExclTelAndStu * 100.0 / nTLExclTelAndStu) > 0 AND 
+                  (nTLNeverDelqExclTelAndStu * 100.0 / nTLExclTelAndStu) < 1 THEN 1
+              ELSE ROUND(nTLNeverDelqExclTelAndStu * 100.0 / nTLExclTelAndStu, 4)
+              END AS pctTLNeverDelqExclTelAndStu
+        ,CASE WHEN nTL = 0 THEN -99792
+              ELSE ROUND(numTLOpnd0to11Mos * 100.0 / nTL, 4)
+              END AS pctTLOpnd0To11Mos
+        ,CASE WHEN nTLMthsRep3m = 0 THEN -99792
+              WHEN nTLMiF = 0 THEN -99784
+              ELSE ROUND(nMthsOpn/ nTLMiF, 4)
+              END AS avgMosInFileTLRptd0To2Mos
+        ,CASE WHEN nBankRevTL = 0 THEN -99792
+              WHEN nBankRevOpenTL = 0 THEN -99784
+              WHEN ValBankRevTL = 0 THEN -99752
+              ELSE highestUtilOnBankNatlRevTL
+              END AS highestUtilOnBankNatlRevTL
+        ,CASE WHEN numRevTL = 0 THEN -99792
+              WHEN nmRevOpenTL = 0 THEN -99784
+              WHEN nmValRevTL = 0 THEN -99752
+              ELSE highestUtilOnRevTL
+              END AS highestUtilOnRevTL
+        ,CASE WHEN nValTL = 0 THEN -99792
+              WHEN maxDelq0To11Mos = 99 THEN -99792
+              ELSE maxDelq0To11Mos
+              END AS maxDelq0To11Mos
+        ,CASE WHEN numTL90 = 0 AND nmCollTL = 0 THEN -99792
+              WHEN (numTL90 > 0 OR nmCollTL > 0) AND mosSncMostRcntDerog = 1200 THEN -99784
+              ELSE mosSncMostRcntDerog
+              END AS mosSncMostRcntDerog
+        ,CASE WHEN nmBankRevOpenTL = 0 THEN -99792
+              WHEN nmValBankRevOpenTL = 0 THEN -99784
+              ELSE mosSncOldBankNatlRevOpnTLOpnd
+              END AS mosSncOldBankNatlRevOpnTLOpnd
+        ,CASE WHEN numRevTL = 0 THEN -99792
+              WHEN nValRevTL = 0 THEN -99784
+              ELSE mosSncOldestRevTLOpnd
+              END AS mosSncOldestRevTLOpnd
+        ,CASE WHEN numRevTL = 0 THEN -99792
+              WHEN nRevOpnTL = 0 THEN -99784
+              WHEN numValRevTL = 0 THEN -99752
+              WHEN TotCredAmnt = 0 THEN -99776
+              WHEN (CurrBal * 100.0 / TotCredAmnt) > 0 AND (CurrBal * 100.0 / TotCredAmnt) < 1 THEN 1
+              ELSE ROUND(CurrBal * 100.0 / TotCredAmnt, 4)
+              END AS netFrctRev
+        ,CASE WHEN nmTLOpnd0To11 = 0 THEN -99792
+              WHEN nmOpnTL = 0 THEN -99784
+              WHEN nmValTL = 0 THEN -99752
+              WHEN TotCreditAmount = 0 THEN -99776
+              WHEN (TotCurrBalance * 100.0 / TotCreditAmount) > 0 AND (TotCurrBalance * 100.0 / TotCreditAmount) < 1 THEN 1
+              ELSE ROUND(TotCurrBalance * 100.0 / TotCreditAmount, 4)
+              END AS netFrctTLOpnd0To11Mos
+        ,CASE WHEN nmTLOpnd0To23 = 0 THEN -99792
+              WHEN nmbrOpnTL = 0 THEN -99784
+              WHEN nmbrValOpnTL = 0 THEN -99752
+              WHEN TotalCreditAmount = 0 THEN -99776
+              WHEN TotalCurrBalance < 0 THEN 1
+              ELSE ROUND(TotalCurrBalance * 100.0 / TotalCreditAmount, 4)
+              END AS netFrctTLOpnd0To23Mos
+        ,CASE WHEN TL_TOT_REV_OPN_LC_L6M > 0 THEN ROUND(TL_TOT_REV_OPN_BAL_L6M/TL_TOT_REV_OPN_LC_L6M, 4) ELSE NULL END AS RZ_REV_OPN_BAL_LC_L6M
+  FROM VFAC_BR_TL_FN
+),
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+--                                                    05. INSUMO PARA SCORECARDS
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ABT AS (
+SELECT a.*
+      ,COALESCE(b.avgMosInFileTLRptd0To2Mos, -999) AS avgMosInFileTLRptd0To2Mos
+      ,COALESCE(b.maxDelq0To11Mos, -999) AS maxDelq0To11Mos
+      ,COALESCE(b.netFrctTLOpnd0To23Mos, -999) AS netFrctTLOpnd0To23Mos
+      ,COALESCE(b.numTL60pDaysEverColl, -999) AS numTL60pDaysEverColl
+      ,COALESCE(b.numTLOpnd0to11Mos, -999) AS numTLOpnd0to11Mos
+      ,COALESCE(b.highestUtilOnBankNatlRevTL, -999) AS highestUtilOnBankNatlRevTL
+      ,COALESCE(b.highestUtilOnRevTL, -999) AS highestUtilOnRevTL
+      ,COALESCE(b.mosSncMostRcntDerog, -999) AS mosSncMostRcntDerog
+      ,COALESCE(b.TL_MAX_OPN_MAXDLQ3M , -999) AS TL_MAX_OPN_MAXDLQ3M 
+      ,COALESCE(b.TL_MAX_REV_OPN_MXDLQ12M, -999) AS TL_MAX_REV_OPN_MXDLQ12M
+      ,COALESCE(b.TL_NUM_REV_OPN_ACC_L6M, -999) AS TL_NUM_REV_OPN_ACC_L6M
+      ,COALESCE(b.TL_MAX_OPN_MAXDLQ12M_L24M, -999) AS TL_MAX_OPN_MAXDLQ12M_L24M
+      ,COALESCE(c.numInqLast30Days, -999) AS numInqLast30Days
+      ,COALESCE(b.pctTLNeverDelqExclTelAndStu, -999) AS pctTLNeverDelqExclTelAndStu
+      ,COALESCE(b.mosSncOldBankNatlRevOpnTLOpnd, -999) AS mosSncOldBankNatlRevOpnTLOpnd
+      ,COALESCE(b.numAutoLoanTL, -999) AS numAutoLoanTL
+      ,COALESCE(b.pctILTL, -999) AS pctILTL
+      ,COALESCE(b.mosSncOldestRevTLOpnd, -999) AS mosSncOldestRevTLOpnd
+      ,COALESCE(b.netFrctRev, -999) AS netFrctRev
+      ,COALESCE(b.netFrctTLOpnd0To11Mos, -999) AS netFrctTLOpnd0To11Mos
+      ,COALESCE(b.numRevTL, -999) AS numRevTL
+      ,COALESCE(b.numRevTL30pEver, -999) AS numRevTL30pEver
+      ,COALESCE(b.numRevOpenTL30pEver, -999) AS numRevOpenTL30pEver
+      ,COALESCE(b.pctTLOpnd0To11Mos, -999) AS pctTLOpnd0To11Mos
+      ,COALESCE(b.TL_TOT_REV_OPN_BAL_L6M, -999) AS TL_TOT_REV_OPN_BAL_L6M
+      ,COALESCE(b.TL_TOT_REV_OPN_LC_L6M, -999) AS TL_TOT_REV_OPN_LC_L6M
+      ,COALESCE(b.RZ_REV_OPN_BAL_LC_L6M, -999) AS RZ_REV_OPN_BAL_LC_L6M
+      ,COALESCE(b.TL_MAX_REV_OPN_MAXDLQ9M, -999) AS TL_MAX_REV_OPN_MAXDLQ9M
+      ,COALESCE(b.BR_CRD_MAX, -999) AS BR_CRD_MAX
+      ,COALESCE(b.TL_NUM_NREV_OPN_L12M, -999) AS TL_NUM_NREV_OPN_L12M
+      ,COALESCE(b.TL_NUM_REV_OPN_ACC_L9M, -999) AS TL_NUM_REV_OPN_ACC_L9M
+      ,COALESCE(b.TL_MAX_MTH_OPN_ACC, -999) AS TL_MAX_MTH_OPN_ACC
+      ,COALESCE(b.TL_SUM_IMP_PAG_ABT, -999) AS TL_SUM_IMP_PAG_ABT
+      ,COALESCE(b.TL_NUM_CLSD_ACC, -999) AS TL_NUM_CLSD_ACC
+      ,CASE WHEN b.num_revolving_TL > 0 THEN b.LINEA_REV/b.num_revolving_TL ELSE 0 END AS AVG_LINE_OFFUS
+      ,COALESCE(c.IQ_NUM_INQ_NREV_L24M, -999) AS IQ_NUM_INQ_NREV_L24M
+      ,COALESCE(c.IQ_NUM_INQ_NREV_L9M, -999) AS IQ_NUM_INQ_NREV_L9M
+      ,COALESCE(c.IQ_NUM_INQ_TOT_L12M, -999) AS IQ_NUM_INQ_TOT_L12M
+      ,COALESCE(c.IQ_NUM_INQ_NREV_L6M, -999) AS IQ_NUM_INQ_NREV_L6M
+      ,COALESCE(c.IQ_NUM_INQ_NREV_1TO3M, -999) AS IQ_NUM_INQ_NREV_1TO3M
+      ,COALESCE(c.IQ_NUM_INQ_REV_L12M, -999) AS IQ_NUM_INQ_REV_L12M
+      ,COALESCE(c.numInq0to5Mos, -999) AS numInq0to5Mos
+      ,CASE WHEN c.InqLast12Months > 0 THEN c.InqRevLast12Months/c.InqLast12Months ELSE 0 END AS BR_RZN_CONS_REVOL_CONS_TOT_12M
+      ,CASE WHEN c.IQ_NUM_CONS_3M > 0 THEN (IQ_NUM_CONS_REV_3M / IQ_NUM_CONS_3M) * 100 
+            WHEN c.IQ_NUM_CONS_3M <= 0 THEN 0
+            ELSE -999 END AS pctInqRev3Mths
+      ,CASE WHEN b.BR_SOLIC_CVE > 0 THEN 1 ELSE 0 END AS MATCH_TL
+      ,CASE WHEN c.BR_SOLIC_CVE > 0 THEN 1 ELSE 0 END AS MATCH_IQ
+      ,COALESCE(b.TL_MAX_ANT_CTAS_ABT, -999) AS TL_MAX_ANT_CTAS_ABT
+      ,COALESCE(b.TL_MAX_MOP_CTAS_REV_ABT_6M, -999) AS TL_MAX_MOP_CTAS_REV_ABT_6M
+      ,COALESCE(b.TL_MAX_ANT_CTAS_LIV_ABT, -999) AS TL_MAX_ANT_CTAS_LIV_ABT
+      ,b.LINEA_REV
+      ,b.num_revolving_TL
+FROM SOLICITUDES a
+LEFT JOIN VFAC_BR_TL_FN_VARS b
+ON a.BR_SOLIC_CVE = b.BR_SOLIC_CVE
+AND a.BR_TIPO = b.BR_TIPO
+LEFT JOIN VFAC_BR_IQ_VARS c
+ON a.BR_SOLIC_CVE = c.BR_SOLIC_CVE
+AND a.BR_TIPO = c.BR_TIPO
+)
+
+SELECT *
+FROM ABT
